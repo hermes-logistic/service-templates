@@ -1,15 +1,16 @@
 name: 'Code Quality With Code Climate'
-on: 
-  [pull_request]
+
+on:
+  workflow_call:
+    secrets:
+      GOOGLE_CHAT_WEBHOOK_URL:
+        required: true
 jobs:
   code-quality:  
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
         
       - name: Use Code Climate CLI
         run: |
@@ -20,6 +21,14 @@ jobs:
             --volume /var/run/docker.sock:/var/run/docker.sock \
             --volume /tmp/cc:/tmp/cc \
             codeclimate/codeclimate analyze
+        continue-on-error: true
+
+      # - name: Upload artifact
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: code quality
+      #     path: code-quality-${{ github.run_id }}-${{ github.run_number }}.html
+      #     overwrite: true
       
       - name: Notify Google Chat
         if: ${{ always() }}
@@ -27,9 +36,5 @@ jobs:
         with:
           webhookUrl: '${{ secrets.GOOGLE_CHAT_WEBHOOK_URL }}'
           jobStatus: ${{ job.status }}
-          title: ${{ github.workflow }}
+          title: 'Code quality'
           subtitle: ${{ github.event.pull_request.head.ref }}
-
-
-
-

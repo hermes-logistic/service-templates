@@ -1,17 +1,39 @@
 name: 'Unit testing y Code Coverage'
 on: 
-  [pull_request]
+  workflow_call:
+    secrets:
+      GOOGLE_CHAT_WEBHOOK_URL:
+        required: true
+      
 jobs:
-  code-quality:  
+  code-coverage:  
     runs-on: ubuntu-latest
     steps:
+    
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Run Unit Testing With Code Coverage
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21.6'
+          check-latest: true
+          cache-dependency-path: "**/*.sum"
+
+      - name: Run tests and check coverage
         run: |
-          go test ./... -coverprofile=c.out
-          go tool cover -html="c.out"
+          go get github.com/boumenot/gocover-cobertura
+          chmod +x ./test.sh
+          ./test.sh
+          go tool cover -html=coverage.out -o coverage-${{ github.run_id }}-${{ github.run_number }}.html
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: code coverage
+          path: coverage-${{ github.run_id }}-${{ github.run_number }}.html
+          overwrite: true
+        continue-on-error: true
 
       - name: Notify Google Chat
         if: ${{ always() }}
@@ -19,8 +41,5 @@ jobs:
         with:
           webhookUrl: '${{ secrets.GOOGLE_CHAT_WEBHOOK_URL }}'
           jobStatus: ${{ job.status }}
-          title: ${{ github.workflow }}
+          title: 'Unit testing y Code Coverage'
           subtitle: ${{ github.event.pull_request.head.ref }}
-
-
-

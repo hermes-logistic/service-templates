@@ -1,0 +1,43 @@
+name: Container Image CI
+
+on:
+  workflow_call:
+    secrets:
+      GOOGLE_CHAT_WEBHOOK_URL:
+        required: true
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Generate tarball from image
+      run: |
+        docker build -t localbuild/testimage:latest .
+        docker save -o vuln-image.tar localbuild/testimage:latest
+
+    - name: Run Trivy vulnerability scanner in tarball mode
+      uses: aquasecurity/trivy-action@0.20.0
+      with:
+        input: /github/workspace/vuln-image.tar
+        severity: 'CRITICAL,HIGH'
+      continue-on-error: true
+    
+    # - name: Upload artifact
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     name: container scanning
+    #     path: trivy-results-${{ github.run_id }}-${{ github.run_number }}.sarif
+    #     if-no-files-found: ignore
+    
+    - name: Notify Google Chat
+      if: ${{ always() }}
+      uses: SimonScholz/google-chat-action@main
+      with:
+        webhookUrl: '${{ secrets.GOOGLE_CHAT_WEBHOOK_URL }}'
+        jobStatus: ${{ job.status }}
+        title: 'Container Image CI'
+        subtitle: ${{ github.event.pull_request.head.ref }}
