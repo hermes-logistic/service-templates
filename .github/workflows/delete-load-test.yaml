@@ -10,6 +10,8 @@ on:
         required: true
       GOOGLE_CHAT_WEBHOOK_URL:
         required: true
+      IMAGE_TAG:
+        required: true
 jobs:
   delete-infra:
     runs-on: ubuntu-latest 
@@ -29,7 +31,7 @@ jobs:
       
       - name: 'Clean All'
         run: |
-          gcloud run services delete ${{ secrets.SERVICE }}-${{ github.ref_name }} --region us-east4 --quiet
+          gcloud run services delete ${{ secrets.SERVICE }}-${{ secrets.IMAGE_TAG }} --region us-east4 --quiet
 
       - name: Notify Google Chat
         if: ${{ always() }}

@@ -11,6 +11,8 @@ on:
         required: true
       GOOGLE_CHAT_WEBHOOK_URL:
         required: true
+      IMAGE_TAG:
+        required: true
 
 jobs:
   load-test:
@@ -34,7 +36,7 @@ jobs:
 
       - name: 'Update ddosify json'
         run: |
-          SERVICE_URL=$(gcloud run services describe ${{ secrets.SERVICE }}-${{ github.ref_name }} \
+          SERVICE_URL=$(gcloud run services describe ${{ secrets.SERVICE }}-${{ secrets.IMAGE_TAG }} \
             --region us-east4 \
             --format "value(status.url)")
           echo "Service URL: $SERVICE_URL"
