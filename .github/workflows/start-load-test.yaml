@@ -1,0 +1,55 @@
+name: 'Load Test'
+
+on:
+  workflow_call: 
+    secrets:
+      WORKLOAD_IDENTITY_PROVIDER:
+        required: true
+      SERVICE_ACCOUNT:
+        required: true
+      SERVICE:
+        required: true
+      GOOGLE_CHAT_WEBHOOK_URL:
+        required: true
+
+jobs:
+  load-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          create_credentials_file: true
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT }}
+
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v2'
+        with:
+          version: '>= 363.0.0'
+
+      - name: 'Update ddosify json'
+        run: |
+          SERVICE_URL=$(gcloud run services describe ${{ secrets.SERVICE }}-${{ github.ref_name }} \
+            --region us-east4 \
+            --format "value(status.url)")
+          echo "Service URL: $SERVICE_URL"
+          sed -i.bak 's/URL/$SERVICE_URL/g' ddosify-data.json
+          
+      - name: Run load tests
+        run: |
+          docker pull ddosify/ddosify
+          docker run -i --rm ddosify/ddosify ddosify -config ddosify-data.json
+          
+      - name: Notify Google Chat
+        if: ${{ always() }}
+        uses: SimonScholz/google-chat-action@main
+        with:
+          webhookUrl: '${{ secrets.GOOGLE_CHAT_WEBHOOK_URL }}'
+          jobStatus: ${{ job.status }}
+          title: ${{ github.workflow }}
+          subtitle: ${{ github.event.pull_request.head.ref }}
