@@ -58,7 +58,7 @@ jobs:
             --update-secrets=ENV=${{ secrets.SERVICE }}:latest \
             --port ${{ secrets.PORT }} \
             --memory 128Mi \
-            --set-env-vars=DB_DATASET_TEST=${{ secrets.DATASET_TEST }}
+            --set-env-vars=DB_DATASET_TEST=${{ secrets.DATASET_TEST }} \
             --service-account=${{ secrets.SERVICE_ACCOUNT }}
             
       - name: Set SERVICE_URL environment variable
