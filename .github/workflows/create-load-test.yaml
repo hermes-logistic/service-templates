@@ -50,7 +50,7 @@ jobs:
       
       - name: 'Deploy to Cloud Run'
         run: |
-          gcloud run deploy ${{ secrets.SERVICE }}-${{ github.ref_name }} \
+          gcloud run deploy ${{ secrets.SERVICE }}-${{ github.event.pull_request.number }} \
             --image ${{ secrets.CLOUD_REGISTRY }}:${{ secrets.IMAGE_TAG }} \
             --region us-east4 \
             --platform managed \
