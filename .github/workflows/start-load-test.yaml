@@ -49,7 +49,7 @@ jobs:
         run: |
           ls
           docker pull ddosify/ddosify
-          docker run -i --rm  -v ddosify-data.json:/ddosify-data.json ddosify/ddosify ddosify -config ddosify-data.json
+          docker run -i --rm -v "$(pwd)":/app -w /app ddosify/ddosify ddosify -config ddosify-data.json
           
       - name: Notify Google Chat
         if: ${{ always() }}
