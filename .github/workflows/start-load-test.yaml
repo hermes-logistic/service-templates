@@ -39,7 +39,7 @@ jobs:
 
       - name: 'Update ddosify json'
         run: |
-          SERVICE_URL=$(gcloud run services describe ${{ secrets.SERVICE }}-${{ github.ref_name }} \
+          SERVICE_URL=$(gcloud run services describe ${{ secrets.SERVICE }}-${{ github.event.pull_request.number }} \
             --region us-east4 \
             --format "value(status.url)")
           echo "Service URL: $SERVICE_URL"

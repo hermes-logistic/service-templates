@@ -64,7 +64,7 @@ jobs:
       - name: Set SERVICE_URL environment variable
         id: set_service_url
         run: |
-          SERVICE_URL=$(gcloud run services describe ${{ secrets.SERVICE }}-${{ github.ref_name }} \
+          SERVICE_URL=$(gcloud run services describe ${{ secrets.SERVICE }}-${{ github.event.pull_request.number }} \
           --region us-east4 \
           --format "value(status.url)")
           
