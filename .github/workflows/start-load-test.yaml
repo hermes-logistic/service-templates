@@ -47,6 +47,7 @@ jobs:
           
       - name: Run load tests
         run: |
+          ls
           docker pull ddosify/ddosify
           docker run -i --rm ddosify/ddosify ddosify -config ddosify-data.json
           
