@@ -17,6 +17,7 @@ on:
         required: true
       IMAGE_TAG:
         required: true
+      DATASET_TEST:
 
 jobs:
   create-infra:
@@ -53,7 +54,8 @@ jobs:
             --allow-unauthenticated \
             --update-secrets=ENV=${{ secrets.SERVICE }}:latest \
             --port ${{ secrets.PORT }} \
-            --memory 128Mi
+            --memory 128Mi \
+            --set-env-vars=DB_DATASET_TEST=${{ secrets.DATASET_TEST }}
             --service-account=${{ secrets.SERVICE_ACCOUNT }}
             
       - name: Set SERVICE_URL environment variable
