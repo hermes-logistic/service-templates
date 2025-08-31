@@ -50,7 +50,7 @@ jobs:
       
       - name: 'Deploy to Cloud Run'
         run: |
-          gcloud run deploy ${{ secrets.SERVICE }}-${{ secrets.IMAGE_TAG }} \
+          gcloud run deploy ${{ secrets.SERVICE }}-${{ github.ref_name }} \
             --image ${{ secrets.CLOUD_REGISTRY }}:${{ secrets.IMAGE_TAG }} \
             --region us-east4 \
             --platform managed \
@@ -64,7 +64,7 @@ jobs:
       - name: Set SERVICE_URL environment variable
         id: set_service_url
         run: |
-          SERVICE_URL=$(gcloud run services describe ${{ secrets.SERVICE }}-${{ secrets.IMAGE_TAG }} \
+          SERVICE_URL=$(gcloud run services describe ${{ secrets.SERVICE }}-${{ github.ref_name }} \
           --region us-east4 \
           --format "value(status.url)")
           
