@@ -33,7 +33,7 @@ jobs:
           name: code coverage
           path: coverage-${{ github.run_id }}-${{ github.run_number }}.html
           overwrite: true
-        continue-on-error: true
+        continue-on-error: false
 
       - name: Notify Google Chat
         if: ${{ always() }}
