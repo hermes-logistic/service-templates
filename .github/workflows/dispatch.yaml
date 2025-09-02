@@ -1,0 +1,28 @@
+name: 'Load Test'
+
+on:
+  workflow_call: 
+    secrets:
+      PARENT_REPO_TOKEN:
+        required: true
+      PARENT_REPO:
+        required: true
+      EVENT:
+        required: true
+
+jobs:
+  notify-tenant:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send dispatch to parent repoqsitory
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.PARENT_REPO_TOKEN }}
+          repository: ${{ secrets.PARENT_REPO }}
+          event-type: ${{ secrets.EVENT }}
+          client-payload: |
+            {
+              "ref": "${{ github.head_ref }}",
+              "sha": "${{ github.sha }}",
+              "repo": "${{ secrets.PARENT_REPO }}"
+            }
