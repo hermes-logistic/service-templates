@@ -25,7 +25,7 @@ jobs:
         input: /github/workspace/vuln-image.tar
         severity: 'CRITICAL,HIGH'
         ignore-unfixed: true
-      continue-on-error: true
+        exit-code: '1'
     
     # - name: Upload artifact
     #   uses: actions/upload-artifact@v4
